@@ -10,6 +10,6 @@ class CryptId extends Facade
 {
         protected static function getFacadeAccessor()
         {
-                return \Iceberg\CryptId\CryptId::class;
+                return \Tx\CryptId\CryptId::class;
         }
 }
