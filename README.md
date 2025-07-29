@@ -1,119 +1,62 @@
-# CryptID – Secure & URL-Friendly ID Obfuscation for Laravel
+# CryptID — Lightweight Encryption for Laravel
 
-[![Latest Version](https://img.shields.io/packagist/v/iceberg/cryptid.svg?style=flat-square)](https://packagist.org/packages/iceberg/cryptid)
-[![License](https://img.shields.io/packagist/l/iceberg/cryptid.svg?style=flat-square)](LICENSE)
-
-**CryptID** is a simple and secure Laravel package for obfuscating UUIDs or internal IDs using AES encryption with Laravel's native `Crypt` service — producing short, URL-safe, non-sequential strings ideal for protecting routes and internal references.
+`CryptID` is a simple, URL-safe, and reversible encryption tool designed for Laravel applications. It protects identifiers like UUIDs and integer IDs from exposure in plaintext in URLs, forms, and requests — reducing the risk of enumeration and brute-force discovery of sequential IDs.
 
 ---
 
-## 🔐 Features
+## 🔐 Why use CryptID?
 
-- Encrypts UUIDs or any string safely using Laravel's `Crypt::encryptString`
-- Produces **short, URL-safe** hashes (`base64` + `strtr`)
-- Supports automatic decryption via helper methods or model bindings
-- Fully compatible with Laravel >= 10.x
-- Easily pluggable via Service Provider and Facade
+- ✅ Short encrypted output (base64, URL-safe)
+- ✅ AES-256-CBC secure symmetric encryption
+- ✅ Full control over keys and IV
+- ✅ Reversible (for internal use)
+- ✅ No reliance on Laravel's long `Crypt::encryptString` output
+- ✅ Protects URLs and form values
 
 ---
 
-## 🚀 Installation
+## ✨ Installation
 
 ```bash
-composer require iceberg/cryptid
+composer require andretx33/cryptid
 ```
 
-> If using Laravel < 5.5, register the service provider and alias manually in `config/app.php`.
-
 ---
 
-## ⚙️ Configuration
-
-No configuration required. The package uses your app's `APP_KEY` and Laravel's default cipher (`AES-256-CBC`) from `config/app.php`.
-
----
-
-## 📦 Usage
-
-### Basic Example
+## 🧪 Usage
 
 ```php
 use CryptId;
 
-$uuid = '1fe8120a-c64c-47db-8acb-02195b3074ed';
-
-$encrypted = CryptId::encode($uuid);
-// => e.g., "ZGVjcnlwdGVk..."
-
+$encrypted = CryptId::encode('1fe8120a-c64c-47db-8acb-02195b3074ed');
 $decrypted = CryptId::decode($encrypted);
-// => "1fe8120a-c64c-47db-8acb-02195b3074ed"
 ```
 
 ---
 
-### 🔄 Reversible Format
+## 🔐 Security Notes
 
-The encrypted value is:
-- AES-encrypted using `Crypt::encryptString`
-- Base64-encoded
-- Made URL-safe (`-` and `_` instead of `+` and `/`, no padding)
+This package is optimized for **ID obfuscation** (e.g., UUIDs or numeric IDs in URLs/forms). It is **not meant for storing highly sensitive data** like credentials or credit cards unless you manually implement MAC or HMAC for integrity.
 
----
-
-## 🧠 Route Binding Integration
-
-To automatically use obfuscated IDs in URLs:
-
-### In your model (e.g., `Report`):
-
-```php
-use CryptId;
-
-public function getRouteKey()
-{
-    return CryptId::encode($this->uuid);
-}
-
-public function resolveRouteBinding($value, $field = null)
-{
-    $uuid = CryptId::decode($value);
-    return self::where('uuid', $uuid)->firstOrFail();
-}
-```
-
-Now your URLs will contain safe, obfuscated strings like:
-
-```
-/reports/YeTr1lBx8JhKe8g
-```
-
----
-
-## ✅ Security
-
-- Uses Laravel's built-in `Crypt` system with **AES-256-CBC** and **HMAC for integrity**
-- IV is randomly generated for each encryption (non-deterministic)
-- Reversible only with your app's `APP_KEY`
-- No need to manage `IV`, `key`, or cipher manually
-
----
-
-## 🧪 Testing
-
-To run tests:
-
-```bash
-vendor/bin/phpunit
-```
+- IV is derived deterministically from a secret
+- AES-256-CBC is used with keys hashed from secrets
+- Output is base64-encoded and URL-safe
+- Integrity (tamper protection) is not built-in — use HTTPS and transport-layer protections
 
 ---
 
 ## 📄 License
 
-MIT © [TX](https://github.com/andretx33/cryptid.git
-
+MIT © [Andre T.](https://github.com/andretx33)
 ---
 
-## 📬 Support
+## ⚙️ Environment Setup
 
-For enterprise or commercial support, contact [TX](https://github.com/andretx33/cryptid.git).
+In your Laravel `.env` file, add:
+
+```dotenv
+CRYPTID_SECRET_KEY=your-secret-key-here
+CRYPTID_SECRET_IV=your-secret-iv-here
+```
+
+These values are used internally to derive the encryption key and IV. Keep them secret!

@@ -1,20 +1,20 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tx\CryptId;
 
 use Illuminate\Support\ServiceProvider;
 
 class TxServiceProvider extends ServiceProvider
 {
-        public function register()
-        {
-                $this->app->singleton(CryptId::class, fn() => new CryptId);
-        }
+    public function register()
+    {
+        $this->app->singleton(CryptId::class, function () {
+            return new CryptId();
+        });
+    }
 
-        public function boot()
-        {
-                //
-        }
+    public function boot()
+    {
+        //
+    }
 }

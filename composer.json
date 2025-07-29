@@ -1,11 +1,11 @@
 {
   "name": "andretx33/cryptid",
-  "description": "Secure ID obfuscation and encryption for Laravel apps (UUID-friendly)",
+  "description": "Simple and secure ID obfuscation for Laravel \u2014 ideal for encrypting UUIDs and internal IDs in URLs and forms.",
   "type": "library",
   "license": "MIT",
   "authors": [
     {
-      "name": "TX33",
+      "name": "TX",
       "email": "txgithub.ohngc@slmail.me"
     }
   ],
@@ -26,6 +26,11 @@
       "aliases": {
         "CryptId": "Tx\\CryptId\\Facades\\CryptId"
       }
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tx\\CryptId\\Tests\\": "tests/"
     }
   }
 }
