@@ -47,7 +47,7 @@ This package is optimized for **ID obfuscation** (e.g., UUIDs or numeric IDs in 
 
 ## 📄 License
 
-MIT © [Andre T.](https://github.com/andretx33)
+MIT © [TX33](https://github.com/andretx33)
 ---
 
 ## ⚙️ Environment Setup
