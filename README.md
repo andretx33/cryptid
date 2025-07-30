@@ -28,9 +28,17 @@ composer require andretx33/cryptid
 ```php
 use CryptId;
 
-$encrypted = CryptId::encode('1fe8120a-c64c-47db-8acb-02195b3074ed');
-$decrypted = CryptId::decode($encrypted);
-```
+// Works with UUIDs, integers, or any strings
+$encoded = CryptId::encode('1fe8120a-c64c-47db-8acb-02195b3074ed');
+$decoded = CryptId::decode($encoded);
+
+// Already-decoded UUIDs or integers are returned as-is
+CryptId::decode('1fe8120a-c64c-47db-8acb-02195b3074ed'); // returns same
+CryptId::decode('123'); // returns 123
+
+// Malformed or plain values will not crash
+CryptId::decode('this-is-not-valid') // returns original string
+
 
 ---
 
@@ -60,3 +68,16 @@ CRYPTID_SECRET_IV=your-secret-iv-here
 ```
 
 These values are used internally to derive the encryption key and IV. Keep them secret!
+
+
+#### ➕ E adicionar nova seção ao final do README:
+
+```md
+---
+
+## 🚀 v1.1.0 Highlights
+
+- `CryptId::decode()` is now **tolerant and safe**.
+- Accepts UUIDs, integer IDs, and malformed input without throwing exceptions.
+- Useful when receiving input from multiple sources (URLs, forms, APIs).
+- Great for public-facing APIs that need graceful fallback behavior.
