@@ -20,7 +20,7 @@ class CryptId
     public function encode(string $string): string
     {
         // If it is already encoded or is invalid for re-encryption, it returns as is.
-        if ($this->isEncoded($string) || $this->isUuid($string) || $this->isNumericId($string)) {
+        if ($this->isEncoded($string) || !$this->isUuid($string) || $this->isNumericId($string)) {
             return $string;
         }
 
