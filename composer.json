@@ -1,6 +1,6 @@
 {
   "name": "andretx33/cryptid",
-  "description": "Simple and secure ID obfuscation for Laravel \u2014 ideal for encrypting UUIDs and internal IDs in URLs and forms.",
+  "description": "Simple and secure ID obfuscation for Laravel — ideal for encrypting UUIDs and internal IDs in URLs and forms.",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -9,9 +9,11 @@
       "email": "txgithub.ohngc@slmail.me"
     }
   ],
-  "require": {
-    "php": "^8.1",
-    "illuminate/support": "^10 || ^11"
+  {
+    "require": {
+      "php": "^8.1 || ^8.2 || ^8.3 || ^8.4",
+      "illuminate/support": "^10 || ^11 || ^12"
+    }
   },
   "autoload": {
     "psr-4": {
