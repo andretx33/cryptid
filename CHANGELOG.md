@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.1.2] - 2026-07-09
+
+### Changed
+- Confirmed Laravel 10/11 compatibility via `illuminate/support: ^10 || ^11`.
+
+### Fixed
+- Added the missing `Tx\CryptId\Facades\CryptId` class referenced by Laravel package auto-discovery.
+- Added strict declarations and return types to the service provider.
+
+
 ## [v1.1.0] - 2025-07-28
 
 ### Added
