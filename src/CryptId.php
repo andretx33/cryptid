@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tx\CryptId;
 
 use Illuminate\Contracts\Encryption\DecryptException;
-use InvalidArgumentException;
 
 class CryptId
 {
@@ -22,14 +21,23 @@ class CryptId
 
     public function encode(mixed $value): string
     {
-        $string = $this->normalizePlainId($value);
+        if (! is_string($value) && ! is_int($value)) {
+            throw new DecryptException('Invalid id.');
+        }
 
-        if ($this->canDecode($string)) {
+        $string = (string) $value;
+
+        if (trim($string) === '') {
+            throw new DecryptException('Invalid id.');
+        }
+
+        if ($this->isEncoded($string)) {
             return $string;
         }
 
         $key = hash($this->hashCrypt, $this->secretKey);
         $iv = substr(hash($this->hashCrypt, $this->secretIv), 0, 16);
+
         $encrypted = openssl_encrypt($string, $this->encrypMethod, $key, 0, $iv);
 
         if (! is_string($encrypted) || $encrypted === '') {
@@ -41,81 +49,41 @@ class CryptId
 
     public function decode(mixed $value): string
     {
-        $string = $this->normalizeEncryptedId($value);
-
-        if ($this->isUuid($string)) {
-            throw new DecryptException('Raw UUID is not allowed.');
-        }
-
-        if ($this->isNumericId($string)) {
-            throw new DecryptException('Raw numeric id is not allowed.');
-        }
-
-        if (! $this->hasEncryptedPayloadFormat($string)) {
+        if (! is_string($value) || trim($value) === '') {
             throw new DecryptException('Invalid encrypted id.');
         }
 
+        if ($this->isUuid($value)) {
+            throw new DecryptException('Raw UUID is not allowed.');
+        }
+
+        if ($this->isNumericId($value)) {
+            throw new DecryptException('Raw numeric id is not allowed.');
+        }
+
         $base64 = str_pad(
-            strtr($string, '-_', '+/'),
-            strlen($string) % 4 === 0 ? strlen($string) : strlen($string) + 4 - strlen($string) % 4,
+            strtr($value, '-_', '+/'),
+            strlen($value) % 4 === 0 ? strlen($value) : strlen($value) + 4 - strlen($value) % 4,
             '=',
             STR_PAD_RIGHT
         );
 
-        $cipherText = base64_decode($base64, true);
+        $decoded = base64_decode($base64, true);
 
-        if ($cipherText === false) {
+        if ($decoded === false) {
             throw new DecryptException('Invalid encrypted id.');
         }
 
         $key = hash($this->hashCrypt, $this->secretKey);
         $iv = substr(hash($this->hashCrypt, $this->secretIv), 0, 16);
-        $decrypted = openssl_decrypt($cipherText, $this->encrypMethod, $key, 0, $iv);
+
+        $decrypted = openssl_decrypt($decoded, $this->encrypMethod, $key, 0, $iv);
 
         if (! is_string($decrypted) || trim($decrypted) === '') {
             throw new DecryptException('Invalid encrypted id.');
         }
 
-        if (! $this->isUuid($decrypted) && ! $this->isNumericId($decrypted)) {
-            throw new DecryptException('Invalid encrypted id payload.');
-        }
-
         return $decrypted;
-    }
-
-    protected function normalizePlainId(mixed $value): string
-    {
-        if (! is_string($value) && ! is_int($value)) {
-            throw new InvalidArgumentException('ID must be a non-empty string or integer.');
-        }
-
-        $string = trim((string) $value);
-
-        if ($string === '') {
-            throw new InvalidArgumentException('ID must be a non-empty string or integer.');
-        }
-
-        return $string;
-    }
-
-    protected function normalizeEncryptedId(mixed $value): string
-    {
-        if (! is_string($value) || trim($value) === '') {
-            throw new DecryptException('Invalid encrypted id.');
-        }
-
-        return trim($value);
-    }
-
-    protected function canDecode(string $value): bool
-    {
-        try {
-            $this->decode($value);
-
-            return true;
-        } catch (DecryptException) {
-            return false;
-        }
     }
 
     protected function isUuid(string $value): bool
@@ -125,12 +93,14 @@ class CryptId
 
     protected function isNumericId(string $value): bool
     {
-        return preg_match('/^[1-9][0-9]*$/', $value) === 1;
+        return is_numeric($value) && (int) $value > 0;
     }
 
-    protected function hasEncryptedPayloadFormat(string $value): bool
+    protected function isEncoded(string $value): bool
     {
-        return strlen($value) >= 16
-            && preg_match('/^[A-Za-z0-9_-]+$/', $value) === 1;
+        return ! $this->isUuid($value)
+            && ! $this->isNumericId($value)
+            && preg_match('/^[A-Za-z0-9\-_]+$/', $value) === 1
+            && strlen($value) > 20;
     }
 }
